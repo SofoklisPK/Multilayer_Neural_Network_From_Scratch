@@ -1,13 +1,18 @@
 import pickle
 import numpy as np
+import os
+from time import time
+from sklearn.metrics import f1_score
 np.random.seed(42)
+
+import neural_network_class.py as nnClass
+
 
 ck_datafile = open('./ck_data.pickle', 'rb')
 ck_dataset = pickle.load(ck_datafile)
 ck_datafile.close()
 
 train_data,test_data, img_shape = ck_dataset['training_data'], ck_dataset['test_data'], ck_dataset['img_dim']
-
 
 train_feat, train_labels = train_data[0], np.array(train_data[1])
 test_feat, test_labels = test_data[0], np.array(test_data[1])
@@ -48,8 +53,6 @@ DIR_PATH = './'
 
 ### ONLY RUN WHEN INITIALIZING THE NEURAL NETWORK ###
 # !careful not to overwrite older versions!
-import os
-
 modelName = 'myNN_CK'
 
 ### change this manually if you wish to overwrite existing saved model
@@ -60,7 +63,7 @@ overwrite_model = False
 if (os.path.exists(DIR_PATH+modelName) == False) or overwrite_model:
     if overwrite_model: print ('This model exists... Overwriting model now!')
     #Create a new NN model based on SVHN_NN class (Three layers, Relu hidden and softmax output)
-    myNN = CK_NN(layer_sizes = myLayerSizes, layer_activations = myLayerActivations, dropout_prob=myDropoutRate, bias = myBias, lamda = myLamda, beta = myBeta)
+    myNN = nnclass.CK_NN(layer_sizes = myLayerSizes, layer_activations = myLayerActivations, dropout_prob=myDropoutRate, bias = myBias, lamda = myLamda, beta = myBeta)
     print('{0} Hidden Nodes, LR = {1}, dropout = 0.2, {2} epochs, {3} bias, {4} batch size, lamda = {5}, beta = {6}'.format(myLayerSizes[1:-1],myLearningRate,totalEpochs,myBias,myBatchSize,myLamda,myBeta))
     #Save initialized model to file
     myPickle = open(DIR_PATH+modelName, 'wb')
@@ -78,12 +81,7 @@ else:
 
 
 
-    ### HERE, WE TRAIN THE NEURAL NETWORK! ###
-
-from time import time
-from sklearn.metrics import f1_score
-import pickle
-np.random.seed(42)
+### HERE, WE TRAIN THE NEURAL NETWORK! ###
 time0 = time()
 
 #Function to test the accuracy of the myNN with test set 'x_test' & labels 'y_test'
@@ -114,7 +112,6 @@ def test_accuracy(cnt = 0):
     print(' @',cnt,' epochs : F1 measure : {0:.2f}'.format(f1))
 
     return num_of_correct_train/size_of_train_sample, num_of_correct_test/size_of_test_sample, f1
-
 
 
 #Load the neural network from pickle file
